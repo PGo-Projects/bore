@@ -10,7 +10,7 @@ import (
 )
 
 func ProcessBook(h *signalhandler.SignalHandler, title string, pdfLink string, category string, summary string) (err error) {
-	return h.WithSignalBlocked(func() error {
+	return h.WithSignalBlockedAndSignalMessage(func() error {
 		filename := path.Join(category, title+".pdf")
 		txtFilename := path.Join(category, title+".txt")
 		err = utils.CreateDirIfNotExist(category)
@@ -32,5 +32,6 @@ func ProcessBook(h *signalhandler.SignalHandler, title string, pdfLink string, c
 			os.Remove(filename)
 		}
 		return err
-	})
+	},
+		"Finishing Up!")
 }
