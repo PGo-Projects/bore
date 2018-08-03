@@ -9,13 +9,8 @@ import (
 	"github.com/PGo-Projects/bore/internal/allitebooks/utils"
 )
 
-func GetLastURL(homepage string) (url string, err error) {
-	lastPage, err := GetTotalPages(homepage)
-	if err != nil {
-		return "", err
-	}
-
-	lastPageURL := fmt.Sprintf("%s/page/%d", homepage, lastPage)
+func GetLastURLForPage(homepage string, pageNum int) (url string, err error) {
+	lastPageURL := fmt.Sprintf("%s/page/%d", homepage, pageNum)
 	doc, err := utils.GetGoqueryDocument(lastPageURL)
 	if err != nil {
 		return "", err
