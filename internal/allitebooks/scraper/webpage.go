@@ -2,11 +2,31 @@ package scraper
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
 
 	"github.com/PGo-Projects/bore/internal/allitebooks/utils"
 )
+
+func GetLastURL(homepage string) (url string, err error) {
+	lastPage, err := GetTotalPages(homepage)
+	if err != nil {
+		return "", err
+	}
+
+	lastPageURL := fmt.Sprintf("%s/page/%d", homepage, lastPage)
+	doc, err := utils.GetGoqueryDocument(lastPageURL)
+	if err != nil {
+		return "", err
+	}
+
+	url, ok := doc.Find("h2.entry-title a").Last().Attr("href")
+	if ok {
+		return url, nil
+	}
+	return "", errors.New("Unable to find last url")
+}
 
 func GetTotalPages(homepage string) (pageCount int, err error) {
 	doc, err := utils.GetGoqueryDocument(homepage)
