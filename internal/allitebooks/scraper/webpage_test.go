@@ -2,8 +2,12 @@ package scraper
 
 import "testing"
 
-func TestGetLastURL(t *testing.T) {
-	lastURL, err := GetLastURL("http://www.allitebooks.com")
+func TestGetLastURLForPage(t *testing.T) {
+	lastPage, err := GetTotalPages("http://www.allitebooks.com")
+	if err != nil {
+		t.Error(err)
+	}
+	lastURL, err := GetLastURLForPage("http://www.allitebooks.com", lastPage)
 	if err != nil {
 		t.Error(err)
 	}
