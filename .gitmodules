@@ -1,0 +1,3 @@
+[submodule "vendor/github.com/PGo-Projects/signalhandler"]
+	path = vendor/github.com/PGo-Projects/signalhandler
+	url = git@github.com:PGo-Projects/signalhandler.git
