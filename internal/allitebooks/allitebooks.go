@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/viper"
 
 	tm "github.com/buger/goterm"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 type Allitebooks interface {
@@ -36,12 +37,23 @@ func (a *allitebooks) GetAll() {
 	tm.Clear()
 	drawProgressBarSetup()
 	bar.RenderBlank()
+
+	logFile, err := os.OpenFile("errors.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		displayMessage("Unable to create error log", tm.RED)
+		os.Exit(1)
+	}
+	jww.SetLogThreshold(jww.LevelInfo)
+	jww.SetLogOutput(logFile)
+
 	for pageNum := a.startPage; pageNum > 0; pageNum-- {
 		viper.Set("allitebooks-startpage", pageNum)
 		pageURL := fmt.Sprintf(urlFormat, pageNum)
 		booklist, err := scraper.GetBookList(pageURL)
 		if err != nil {
-			displayMessage(fmt.Sprintf("There was an error retrieving booklist from %s", pageURL), tm.RED)
+			message := fmt.Sprintf("There was an error retrieving booklist from %s", pageURL)
+			displayMessage(message, tm.RED)
+			jww.INFO.Println(message)
 		}
 		for index := len(booklist) - 1; index >= 0; index-- {
 			bookURL := booklist[index]
@@ -54,12 +66,16 @@ func (a *allitebooks) GetAll() {
 			viper.Set("allitebooks-starturl", bookURL)
 			title, pdfLink, category, summary, err := scraper.GetBookInfo(bookURL)
 			if err != nil {
-				displayMessage(fmt.Sprintf("There was an error retrieving info from %s", bookURL), tm.RED)
+				message := fmt.Sprintf("There was an error retrieving info from %s", bookURL)
+				displayMessage(message, tm.RED)
+				jww.INFO.Println(message)
 			}
 			displayMessage(fmt.Sprintf("Processing %s", title), tm.WHITE)
 			err = processor.ProcessBook(sighandler, title, pdfLink, category, summary)
 			if err != nil {
-				displayMessage(fmt.Sprintf("There was an error processing %s", title), tm.RED)
+				message := fmt.Sprintf("There was an error processing %s", title)
+				displayMessage(message, tm.RED)
+				jww.INFO.Println(message)
 			}
 		}
 		drawProgressBarSetup()
