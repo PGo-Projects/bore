@@ -3,12 +3,16 @@ package allitebooks
 import (
 	"fmt"
 	"os"
+	"strings"
 	"syscall"
 
 	"github.com/PGo-Projects/bore/internal/allitebooks/processor"
 	"github.com/PGo-Projects/bore/internal/allitebooks/scraper"
 	"github.com/PGo-Projects/signalhandler/pkg/signalhandler"
+	"github.com/schollz/progressbar"
 	"github.com/spf13/viper"
+
+	tm "github.com/buger/goterm"
 )
 
 type Allitebooks interface {
@@ -24,15 +28,20 @@ type allitebooks struct {
 }
 
 func (a *allitebooks) GetAll() {
+	bar := progressbar.NewOptions(a.startPage)
 	urlFormat := "http://www.allitebooks.com/page/%d"
 	sighandler := signalhandler.New(saveProgress, os.Interrupt, syscall.SIGTERM)
 	foundStartURL := false
+
+	tm.Clear()
+	drawProgressBarSetup()
+	bar.RenderBlank()
 	for pageNum := a.startPage; pageNum > 0; pageNum-- {
 		viper.Set("allitebooks-startpage", pageNum)
 		pageURL := fmt.Sprintf(urlFormat, pageNum)
 		booklist, err := scraper.GetBookList(pageURL)
 		if err != nil {
-			fmt.Printf("There was an error retrieving booklist from %s", pageURL)
+			displayMessage(fmt.Sprintf("There was an error retrieving booklist from %s", pageURL), tm.RED)
 		}
 		for index := len(booklist) - 1; index >= 0; index-- {
 			bookURL := booklist[index]
@@ -45,23 +54,38 @@ func (a *allitebooks) GetAll() {
 			viper.Set("allitebooks-starturl", bookURL)
 			title, pdfLink, category, summary, err := scraper.GetBookInfo(bookURL)
 			if err != nil {
-				fmt.Printf("There was an error retrieving info from %s\n", bookURL)
+				displayMessage(fmt.Sprintf("There was an error retrieving info from %s", bookURL), tm.RED)
 			}
-			fmt.Printf("- Processing %s\n", title)
+			displayMessage(fmt.Sprintf("Processing %s", title), tm.WHITE)
 			err = processor.ProcessBook(sighandler, title, pdfLink, category, summary)
 			if err != nil {
-				fmt.Printf("There was an error processing %s\n", title)
+				displayMessage(fmt.Sprintf("There was an error processing %s", title), tm.RED)
 			}
 		}
+		drawProgressBarSetup()
+		bar.Add(1)
 	}
+}
+
+func drawProgressBarSetup() {
+	tm.MoveCursor(1, 1)
+	tm.Flush()
+}
+
+func displayMessage(message string, color int) {
+	tm.MoveCursor(1, 4)
+	tm.Printf("%s\r", strings.Repeat(" ", tm.Width()))
+	tm.MoveCursor(1, 4)
+	tm.Print("   ", tm.Color(message, color))
+	tm.Flush()
 }
 
 func saveProgress() {
 	err := viper.WriteConfig()
 	if err != nil {
-		fmt.Println("Was not able to save the config")
+		displayMessage("There was an error saving configuration...", tm.RED)
 	}
-	fmt.Println("\nExited!")
+	displayMessage("Exited!", tm.GREEN)
 	os.Exit(0)
 }
 
