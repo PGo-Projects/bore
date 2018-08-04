@@ -11,9 +11,16 @@ import (
 	tm "github.com/buger/goterm"
 )
 
-func ProcessBook(h *signalhandler.SignalHandler, title string, pdfLink string, category string, summary string) (err error) {
+type BookInfo struct {
+	Title    string
+	PdfLink  string
+	Category string
+	Summary  string
+}
+
+func ProcessBook(h *signalhandler.SignalHandler, bookInfo BookInfo) (err error) {
 	workFunc := func() error {
-		return processBook(title, pdfLink, category, summary)
+		return processBook(bookInfo)
 	}
 	messageFunc := func() {
 		tm.MoveCursor(1, 5)
@@ -28,15 +35,15 @@ func ProcessBook(h *signalhandler.SignalHandler, title string, pdfLink string, c
 	return h.WithSignalBlockedAndSignalMessageFunc(workFunc, messageFunc)
 }
 
-func processBook(title string, pdfLink string, category string, summary string) error {
-	filename := path.Join(category, title+".pdf")
-	txtFilename := path.Join(category, title+".txt")
-	err := utils.CreateDirIfNotExist(category)
+func processBook(bookInfo BookInfo) error {
+	filename := path.Join(bookInfo.Category, bookInfo.Title+".pdf")
+	txtFilename := path.Join(bookInfo.Category, bookInfo.Title+".txt")
+	err := utils.CreateDirIfNotExist(bookInfo.Category)
 	if err != nil {
 		return err
 	}
 
-	pdf, err := utils.GetFile(pdfLink)
+	pdf, err := utils.GetFile(bookInfo.PdfLink)
 	if err != nil {
 		return err
 	}
@@ -45,7 +52,7 @@ func processBook(title string, pdfLink string, category string, summary string) 
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(txtFilename, []byte(summary), 0644)
+	err = ioutil.WriteFile(txtFilename, []byte(bookInfo.Summary), 0644)
 	if err != nil {
 		os.Remove(filename)
 	}

@@ -71,7 +71,12 @@ func (a *allitebooks) GetAll() {
 				jww.INFO.Println(message)
 			}
 			displayMessage(fmt.Sprintf("Processing %s", title), tm.WHITE)
-			err = processor.ProcessBook(sighandler, title, pdfLink, category, summary)
+			err = processor.ProcessBook(sighandler, processor.BookInfo{
+				Title:    title,
+				PdfLink:  pdfLink,
+				Category: category,
+				Summary:  summary,
+			})
 			if err != nil {
 				message := fmt.Sprintf("There was an error processing %s", title)
 				displayMessage(message, tm.RED)
