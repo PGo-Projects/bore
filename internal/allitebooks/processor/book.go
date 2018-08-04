@@ -18,9 +18,9 @@ type BookInfo struct {
 	Summary  string
 }
 
-func ProcessBook(h *signalhandler.SignalHandler, bookInfo BookInfo) (err error) {
+func ProcessBook(h *signalhandler.SignalHandler, basepath string, bookInfo BookInfo) (err error) {
 	workFunc := func() error {
-		return processBook(bookInfo)
+		return processBook(basepath, bookInfo)
 	}
 	messageFunc := func() {
 		tm.MoveCursor(1, 5)
@@ -35,10 +35,11 @@ func ProcessBook(h *signalhandler.SignalHandler, bookInfo BookInfo) (err error) 
 	return h.WithSignalBlockedAndSignalMessageFunc(workFunc, messageFunc)
 }
 
-func processBook(bookInfo BookInfo) error {
-	filename := path.Join(bookInfo.Category, bookInfo.Title+".pdf")
-	txtFilename := path.Join(bookInfo.Category, bookInfo.Title+".txt")
-	err := utils.CreateDirIfNotExist(bookInfo.Category)
+func processBook(basepath string, bookInfo BookInfo) error {
+	fileDirectory := path.Join(basepath, bookInfo.Category)
+	filename := path.Join(fileDirectory, bookInfo.Title+".pdf")
+	txtFilename := path.Join(fileDirectory, bookInfo.Title+".txt")
+	err := utils.CreateDirIfNotExist(fileDirectory)
 	if err != nil {
 		return err
 	}

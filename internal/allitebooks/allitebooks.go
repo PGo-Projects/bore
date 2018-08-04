@@ -3,11 +3,13 @@ package allitebooks
 import (
 	"fmt"
 	"os"
+	"path"
 	"strings"
 	"syscall"
 
 	"github.com/PGo-Projects/bore/internal/allitebooks/processor"
 	"github.com/PGo-Projects/bore/internal/allitebooks/scraper"
+	"github.com/PGo-Projects/bore/internal/allitebooks/utils"
 	"github.com/PGo-Projects/signalhandler/pkg/signalhandler"
 	"github.com/schollz/progressbar"
 	"github.com/spf13/viper"
@@ -30,6 +32,7 @@ type allitebooks struct {
 
 func (a *allitebooks) GetAll() {
 	bar := progressbar.NewOptions(a.startPage)
+	basepath := "allitebooks"
 	urlFormat := "http://www.allitebooks.com/page/%d"
 	sighandler := signalhandler.New(saveProgress, os.Interrupt, syscall.SIGTERM)
 	foundStartURL := false
@@ -38,7 +41,11 @@ func (a *allitebooks) GetAll() {
 	drawProgressBarSetup()
 	bar.RenderBlank()
 
-	logFile, err := os.OpenFile("errors.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	err := utils.CreateDirIfNotExist(basepath)
+	if err != nil {
+		displayMessage("Unable to create base directory", tm.RED)
+	}
+	logFile, err := os.OpenFile(path.Join(basepath, "errors.log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		displayMessage("Unable to create error log", tm.RED)
 		os.Exit(1)
@@ -71,7 +78,7 @@ func (a *allitebooks) GetAll() {
 				jww.INFO.Println(message)
 			}
 			displayMessage(fmt.Sprintf("Processing %s", title), tm.WHITE)
-			err = processor.ProcessBook(sighandler, processor.BookInfo{
+			err = processor.ProcessBook(sighandler, basepath, processor.BookInfo{
 				Title:    title,
 				PdfLink:  pdfLink,
 				Category: category,
