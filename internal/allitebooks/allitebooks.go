@@ -2,6 +2,7 @@ package allitebooks
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"strings"
@@ -16,6 +17,10 @@ import (
 
 	tm "github.com/buger/goterm"
 	jww "github.com/spf13/jwalterweatherman"
+)
+
+var (
+	notepad *jww.Notepad
 )
 
 type Allitebooks interface {
@@ -50,8 +55,7 @@ func (a *allitebooks) GetAll() {
 		displayMessage("Unable to create error log", tm.RED)
 		os.Exit(1)
 	}
-	jww.SetLogThreshold(jww.LevelInfo)
-	jww.SetLogOutput(logFile)
+	notepad = jww.NewNotepad(jww.LevelError, jww.LevelInfo, os.Stdout, logFile, "errors", log.Ldate|log.Ltime)
 
 	for pageNum := a.startPage; pageNum > 0; pageNum-- {
 		viper.Set("allitebooks-startpage", pageNum)
@@ -60,7 +64,7 @@ func (a *allitebooks) GetAll() {
 		if err != nil {
 			message := fmt.Sprintf("There was an error retrieving booklist from %s", pageURL)
 			displayMessage(message, tm.RED)
-			jww.INFO.Println(message)
+			notepad.INFO.Println(message)
 		}
 		for index := len(booklist) - 1; index >= 0; index-- {
 			bookURL := booklist[index]
@@ -75,7 +79,7 @@ func (a *allitebooks) GetAll() {
 			if err != nil {
 				message := fmt.Sprintf("There was an error retrieving info from %s", bookURL)
 				displayMessage(message, tm.RED)
-				jww.INFO.Println(message)
+				notepad.INFO.Println(message)
 			}
 			displayMessage(fmt.Sprintf("Processing %s", title), tm.WHITE)
 			err = processor.ProcessBook(sighandler, basepath, processor.BookInfo{
@@ -87,7 +91,7 @@ func (a *allitebooks) GetAll() {
 			if err != nil {
 				message := fmt.Sprintf("There was an error processing %s", title)
 				displayMessage(message, tm.RED)
-				jww.INFO.Println(message)
+				notepad.INFO.Println(message)
 			}
 		}
 		drawProgressBarSetup()
@@ -111,7 +115,9 @@ func displayMessage(message string, color int) {
 func saveProgress() {
 	err := viper.WriteConfig()
 	if err != nil {
-		displayMessage("There was an error saving configuration...", tm.RED)
+		message := "There was an error saving configuration..."
+		displayMessage(message, tm.RED)
+		notepad.INFO.Println(message)
 	}
 	displayMessage("Exited!", tm.GREEN)
 	os.Exit(0)
