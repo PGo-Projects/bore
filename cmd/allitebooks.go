@@ -43,7 +43,6 @@ func init() {
 }
 
 func allitebooksBorer(cmd *cobra.Command, args []string) {
-	fmt.Println(viper.ConfigFileUsed())
 	startPage := viper.GetInt("allitebooks-startpage")
 	startURL := viper.GetString("allitebooks-starturl")
 	if cmd.Flags().Changed("startpage") && !cmd.Flags().Changed("starturl") {
