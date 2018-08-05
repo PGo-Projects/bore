@@ -46,7 +46,7 @@ func allitebooksBorer(cmd *cobra.Command, args []string) {
 	startPage := viper.GetInt("allitebooks-startpage")
 	startURL := viper.GetString("allitebooks-starturl")
 	if cmd.Flags().Changed("startpage") && !cmd.Flags().Changed("starturl") {
-		updateStartURL(&startURL, startPage)
+		startURL = getNewStartURL(startPage)
 	}
 	borer := allitebooks.
 		New().
@@ -56,12 +56,12 @@ func allitebooksBorer(cmd *cobra.Command, args []string) {
 	borer.GetAll()
 }
 
-func updateStartURL(startURL *string, startPage int) {
+func getNewStartURL(startPage int) string {
 	url, err := scraper.GetLastURLForPage(homepage, startPage)
 	if err != nil {
 		fmt.Println("Unable to retrieve the starting url")
 		os.Exit(1)
 	}
 	viper.Set("allitebooks-starturl", url)
-	startURL = &url
+	return url
 }
