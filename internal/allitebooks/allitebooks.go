@@ -55,7 +55,7 @@ func (a *allitebooks) GetAll() {
 		displayMessage("Unable to create error log", tm.RED)
 		os.Exit(1)
 	}
-	notepad = jww.NewNotepad(jww.LevelError, jww.LevelInfo, os.Stdout, logFile, "errors", log.Ldate|log.Ltime)
+	notepad = jww.NewNotepad(jww.LevelError, jww.LevelInfo, os.Stdout, logFile, "", log.Ldate|log.Ltime)
 
 	for pageNum := a.startPage; pageNum > 0; pageNum-- {
 		viper.Set("allitebooks-startpage", pageNum)
