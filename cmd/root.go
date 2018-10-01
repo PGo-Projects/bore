@@ -1,9 +1,10 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
+	"github.com/PGo-Projects/bore/internal/allitebooks/utils"
+	tm "github.com/buger/goterm"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -13,7 +14,7 @@ var RootCmd = &cobra.Command{Use: "bore"}
 
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		utils.DisplayMessage(err.Error(), tm.RED)
 		os.Exit(1)
 	}
 }
@@ -34,7 +35,7 @@ func initConfig() {
 	}
 
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println("Can't read config:", err)
+		utils.DisplayMessage("Can't read config: "+err.Error(), tm.RED)
 		os.Exit(1)
 	}
 }

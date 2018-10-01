@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"strings"
 	"syscall"
 
 	"github.com/PGo-Projects/bore/internal/allitebooks/processor"
@@ -48,11 +47,11 @@ func (a *allitebooks) GetAll() {
 
 	err := utils.CreateDirIfNotExist(basepath)
 	if err != nil {
-		displayMessage("Unable to create base directory", tm.RED)
+		utils.DisplayMessage("Unable to create base directory", tm.RED)
 	}
 	logFile, err := os.OpenFile(path.Join(basepath, "errors.log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		displayMessage("Unable to create error log", tm.RED)
+		utils.DisplayMessage("Unable to create error log", tm.RED)
 		os.Exit(1)
 	}
 	notepad = jww.NewNotepad(jww.LevelError, jww.LevelInfo, os.Stdout, logFile, "", log.Ldate|log.Ltime)
@@ -63,7 +62,7 @@ func (a *allitebooks) GetAll() {
 		booklist, err := scraper.GetBookList(pageURL)
 		if err != nil {
 			message := fmt.Sprintf("There was an error retrieving booklist from %s", pageURL)
-			displayMessage(message, tm.RED)
+			utils.DisplayMessage(message, tm.RED)
 			notepad.INFO.Println(message)
 		}
 		for index := len(booklist) - 1; index >= 0; index-- {
@@ -78,10 +77,10 @@ func (a *allitebooks) GetAll() {
 			title, pdfLink, category, summary, err := scraper.GetBookInfo(bookURL)
 			if err != nil {
 				message := fmt.Sprintf("There was an error retrieving info from %s", bookURL)
-				displayMessage(message, tm.RED)
+				utils.DisplayMessage(message, tm.RED)
 				notepad.INFO.Println(message)
 			}
-			displayMessage(fmt.Sprintf("Processing %s", title), tm.WHITE)
+			utils.DisplayMessage(fmt.Sprintf("Processing %s", title), tm.WHITE)
 			err = processor.ProcessBook(sighandler, basepath, processor.BookInfo{
 				Title:    title,
 				PdfLink:  pdfLink,
@@ -90,7 +89,7 @@ func (a *allitebooks) GetAll() {
 			})
 			if err != nil {
 				message := fmt.Sprintf("There was an error processing %s", title)
-				displayMessage(message, tm.RED)
+				utils.DisplayMessage(message, tm.RED)
 				notepad.INFO.Println(message)
 			}
 		}
@@ -104,22 +103,14 @@ func drawProgressBarSetup() {
 	tm.Flush()
 }
 
-func displayMessage(message string, color int) {
-	tm.MoveCursor(1, 4)
-	tm.Printf("%s\r", strings.Repeat(" ", tm.Width()))
-	tm.MoveCursor(1, 4)
-	tm.Print("   ", tm.Color(message, color))
-	tm.Flush()
-}
-
 func saveProgress() {
 	err := viper.WriteConfig()
 	if err != nil {
 		message := "There was an error saving configuration..."
-		displayMessage(message, tm.RED)
+		utils.DisplayMessage(message, tm.RED)
 		notepad.INFO.Println(message)
 	}
-	displayMessage("Exited!", tm.GREEN)
+	utils.DisplayMessage("Exited!", tm.GREEN)
 	os.Exit(0)
 }
 
