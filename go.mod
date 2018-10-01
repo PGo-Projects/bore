@@ -5,7 +5,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.4.1
 	github.com/andybalholm/cascadia v1.0.0 // indirect
 	github.com/buger/goterm v0.0.0-20180423150900-6d19e6a8df12
-	github.com/schollz/progressbar v1.0.0
+	github.com/schollz/progressbar/v2 v2.5.3
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/jwalterweatherman v1.0.0
 	github.com/spf13/viper v1.2.1

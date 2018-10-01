@@ -12,7 +12,7 @@ import (
 	"github.com/PGo-Projects/bore/internal/allitebooks/scraper"
 	"github.com/PGo-Projects/bore/internal/allitebooks/utils"
 	"github.com/PGo-Projects/signalhandler/pkg/signalhandler"
-	"github.com/schollz/progressbar"
+	"github.com/schollz/progressbar/v2"
 	"github.com/spf13/viper"
 
 	tm "github.com/buger/goterm"
