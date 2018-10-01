@@ -1,9 +1,0 @@
-[submodule "vendor/github.com/PGo-Projects/signalhandler"]
-	path = vendor/github.com/PGo-Projects/signalhandler
-	url = git@github.com:PGo-Projects/signalhandler.git
-[submodule "vendor/github.com/spf13/viper"]
-	path = vendor/github.com/spf13/viper
-	url = git@github.com:spf13/viper.git
-[submodule "vendor/github.com/spf13/cobra"]
-	path = vendor/github.com/spf13/cobra
-	url = git@github.com:spf13/cobra.git
