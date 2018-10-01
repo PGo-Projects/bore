@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/PGo-Projects/bore/internal/allitebooks"
 	"github.com/PGo-Projects/bore/internal/allitebooks/scraper"
+	"github.com/PGo-Projects/bore/internal/allitebooks/utils"
+	tm "github.com/buger/goterm"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -28,12 +29,12 @@ func init() {
 
 	startPage, err := scraper.GetTotalPages(homepage)
 	if err != nil {
-		fmt.Println("Unable to get value for start page, did not pass health check")
+		utils.DisplayMessage("Unable to get value for start page, did not pass health check", tm.RED)
 		os.Exit(1)
 	}
 	startURL, err := scraper.GetLastURLForPage(homepage, startPage)
 	if err != nil {
-		fmt.Println("Unable to get value for start url, did not pass health check")
+		utils.DisplayMessage("Unable to get value for start url, did not pass health check", tm.RED)
 		os.Exit(1)
 	}
 	viper.SetDefault("allitebooks-startpage", startPage)
@@ -59,7 +60,7 @@ func allitebooksBorer(cmd *cobra.Command, args []string) {
 func getNewStartURL(startPage int) string {
 	url, err := scraper.GetLastURLForPage(homepage, startPage)
 	if err != nil {
-		fmt.Println("Unable to retrieve the starting url")
+		utils.DisplayMessage("Unable to retrieve the starting url", tm.RED)
 		os.Exit(1)
 	}
 	viper.Set("allitebooks-starturl", url)
